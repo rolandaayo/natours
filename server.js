@@ -8,7 +8,8 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get("/api/v1/tours", (req, res) => { // Handles GET request to retrieve all tours
+app.get("/api/v1/tours", (req, res) => {
+  // Handles GET request to retrieve all tours
   res.status(200).json({
     status: "success",
     results: tours.length,
@@ -18,12 +19,16 @@ app.get("/api/v1/tours", (req, res) => { // Handles GET request to retrieve all 
   });
 });
 
-app.get("/api/v1/tours/:id", (req, res) => { // Handles GET request to retrieve a specific tour by ID
-  console.log(req.params);
-  
+app.get("/api/v1/tours/:id", (req, res) => {
+  // Handles GET request to retrieve a specific tour by ID
   const id = req.params.id * 1;
-  const tour = tours.find(el => el.id === id);
-
+  const tour = tours.find((el) => el.id === id);
+  if (!tour) {
+    return res.status(404).json({
+      status: "failed",
+      message: "Invalid ID",
+    });
+  }
   res.status(200).json({
     status: "success",
     data: {
@@ -32,7 +37,8 @@ app.get("/api/v1/tours/:id", (req, res) => { // Handles GET request to retrieve 
   });
 });
 
-app.post("/api/v1/tours", (req, res) => { // Handles POST request to create a new tour
+app.post("/api/v1/tours", (req, res) => {
+  // Handles POST request to create a new tour
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
@@ -49,6 +55,36 @@ app.post("/api/v1/tours", (req, res) => { // Handles POST request to create a ne
     }
   );
   res.send("Added new tour!");
+});
+
+app.patch("/api/v1/tours/:id", (req, res) => {
+  // Handles PATCH request to update a specific tour by ID
+
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: "fail",
+      message: "Invalid ID",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      tour: "<Updated tour here...>",
+    },
+  });
+});
+
+app.delete("/api/v1/tours/:id", (req, res) => {
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: "success",
+      message: "Deleted!",
+      data: {
+        tour: null,
+      },
+    });
+  }
 });
 
 const port = 3000;
